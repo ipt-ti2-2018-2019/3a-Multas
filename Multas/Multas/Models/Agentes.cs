@@ -10,10 +10,10 @@ namespace Multas.Models {
       [Key] // identifica este atributo como Primary Key
       public int ID { get; set; }
 
-      [Required (ErrorMessage ="O Nome é de preenchimento obrigatório.") ]
-      [StringLength (50,ErrorMessage ="O {0} deve ter, no máximo, {1} caracteres.")]
+      [Required(ErrorMessage = "O Nome é de preenchimento obrigatório.")]
+      [StringLength(50, ErrorMessage = "O {0} deve ter, no máximo, {1} caracteres.")]
       [RegularExpression("[A-ZÁÉÍÓÚ][a-záéíóúàèìòùäëïöüãõâêîôûçñ]+(( | e | de | do | dos | da | das |-|')[A-ZÁÉÍÓÚ][a-záéíóúàèìòùäëïöüãõâêîôûçñ]+)*",
-                          ErrorMessage ="O {0} só pode conter letras. Cada palavra deve começar com uma Maiúscula.")]
+                          ErrorMessage = "O {0} só pode conter letras. Cada palavra deve começar com uma Maiúscula.")]
       public string Nome { get; set; }
 
       [Required(ErrorMessage = "A Esquadra é de preenchimento obrigatório.")]
@@ -26,7 +26,10 @@ namespace Multas.Models {
       public string Fotografia { get; set; }
 
       // *************************************
-      // lista das multas associadas ao Agente
+
+      /// <summary>
+      ///  lista das multas associadas ao Agente
+      /// </summary>
       public ICollection<Multas> ListaDeMultas { get; set; }
 
 

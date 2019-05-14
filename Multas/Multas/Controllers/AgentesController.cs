@@ -14,6 +14,9 @@ namespace Multas.Controllers {
 
       // GET: Agentes
       public ActionResult Index() {
+
+         Session["Metodo"] = "";
+
          return View(db.Agentes.ToList());
       }
 
@@ -26,6 +29,9 @@ namespace Multas.Controllers {
          if(agentes == null) {
             return HttpNotFound();
          }
+
+         Session["Metodo"] = "";
+
          return View(agentes);
       }
 
@@ -75,24 +81,102 @@ namespace Multas.Controllers {
          return View(agentes);
       }
 
+
+
       // GET: Agentes/Delete/5
+      /// <summary>
+      /// mostra na view os dados de um agente para porterior, eventual, remoção
+      /// </summary>
+      /// <param name="id">identificador do agente a remover</param>
+      /// <returns></returns>
       public ActionResult Delete(int? id) {
+
+         // o ID do agente não foi fornecido
+         // não é possível procurar o Agente
+         // o que devo fazer?
          if(id == null) {
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            ///  opção por defeito do 'template'
+            ///  return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            /// e não há ID do Agente, uma de duas coisas aconteceu:
+            ///   - há um erro nos links da aplicação
+            ///   - há um 'chico experto' a fazer asneiras no URL
+
+            /// redireciono o utilzador para o ecrã incial
+            return RedirectToAction("Index");
          }
-         Agentes agentes = db.Agentes.Find(id);
-         if(agentes == null) {
-            return HttpNotFound();
+
+
+         // procura os dados do Agentes, cujo ID é fornecido
+         Agentes agente = db.Agentes.Find(id);
+
+         /// se o agente não fôr encontrado
+         if(agente == null) {
+            // ou há um erro,
+            // ou há um 'chico experto'...
+            //   return HttpNotFound();
+
+            /// redireciono o utilzador para o ecrã incial
+            return RedirectToAction("Index");
          }
-         return View(agentes);
+
+         /// para o caso do utilizador alterar, de forma fraudulenta,
+         /// os dados do Agente, vamos guardá-los internamente
+         /// Para isso, vou guardar o valor do ID do Agente
+         /// - guardar o ID do Agente num cookie cifrado
+         /// - guardar o ID numa var. de sessão 
+         ///      (quem estiver a usar o Asp .Net Core já não tem esta ferramenta...)
+         /// - outras opções...
+         Session["IdAgente"] = agente.ID;
+         Session["Metodo"] = "Agentes/Delete";
+
+         // envia para a View os dados do Agente encontrado
+         return View(agente);
       }
 
+
+
+
+
       // POST: Agentes/Delete/5
+      /// <summary>
+      /// concretizar a operação de remoção de um agente
+      /// </summary>
+      /// <param name="id"> identificador do agente</param>
+      /// <returns></returns>
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
-      public ActionResult DeleteConfirmed(int id) {
+      public ActionResult DeleteConfirmed(int? id) {
 
+         if(id == null) {
+            // se entrei aqui,é porque é pq há um erro
+            // nao se sabe o ID do agente a remover
+            return RedirectToAction("Index");
+         }
+
+         // avaliar se o ID do agente que é fornecido
+         // é o mesmo ID do agente que foi apresentado no ecrã
+         if(id != (int)Session["IdAgente"]) {
+            // há um ataque!
+            // redirecionar para a página de Index
+            return RedirectToAction("Index");
+         }
+
+         // avaliar se o método é o que é esperado
+         string operacao = "Agentes/Delete";
+         if(operacao != (string)Session["Metodo"]) {
+            // há um ataque!
+            // redirecionar para a página de Index
+            return RedirectToAction("Index");
+         }
+
+         // procura os dados do Agente, na BD
          Agentes agente = db.Agentes.Find(id);
+
+         if(agente == null) {
+            // não foi possível encontrar o Agente
+            return RedirectToAction("Index");
+         }
 
          try {
             db.Agentes.Remove(agente);
@@ -103,8 +187,8 @@ namespace Multas.Controllers {
             // pode haver mais do que um 'catch' associado a um 'try'
 
             // enviar mensagem de erro para o utilizador
-            ModelState.AddModelError("","Ocorreu um erro com a eliminação do Agente "
-                                        + agente.Nome+
+            ModelState.AddModelError("", "Ocorreu um erro com a eliminação do Agente "
+                                        + agente.Nome +
                                         ". Provavelmente relacionado com o facto do " +
                                         "agente ter emitido multas...");
             // devolver os dados do Agente à View
