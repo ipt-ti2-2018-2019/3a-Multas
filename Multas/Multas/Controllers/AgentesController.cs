@@ -36,6 +36,10 @@ namespace Multas.Controllers {
       }
 
       // GET: Agentes/Create
+      /// <summary>
+      /// mostra a view para carregar os dados de um novo Agente
+      /// </summary>
+      /// <returns></returns>
       public ActionResult Create() {
          return View();
       }
@@ -43,16 +47,39 @@ namespace Multas.Controllers {
       // POST: Agentes/Create
       // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
       // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+
+      /// <summary>
+      /// recolhe os dados da View, sobre um novo Agente
+      /// </summary>
+      /// <param name="agente">dados do novo Agente</param>
+      /// <param name="fotografia">ficheiro com a foto do novo Agente</param>
+      /// <returns></returns>
+
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Create([Bind(Include = "ID,Nome,Esquadra,Fotografia")] Agentes agentes, HttpPostedFileBase fotografia) {
+      public ActionResult Create([Bind(Include = "Nome,Esquadra")] Agentes agente, HttpPostedFileBase fotografia) {
+
+         /// 1º será que foi enviado um ficheiro?
+         /// 2º será que o ficheiro, se foi fornecido, é do tipo correto?
+         /// 3º qual o nome a atribuir ao ficheiro?
+         /// 4º como o associar ao novo Agente?
+         /// 5º como o guardar no disco rígido? e onde?
+
+         /// confronta os dados q vêm da view com a forma que os dados devem ter.
+         /// ie, valida os dados com o Modelo
          if(ModelState.IsValid) {
-            db.Agentes.Add(agentes);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            try {
+               db.Agentes.Add(agente);
+               db.SaveChanges();
+               return RedirectToAction("Index");
+            }
+            catch(Exception) {
+               throw;
+            }
+
          }
 
-         return View(agentes);
+         return View(agente);
       }
 
       // GET: Agentes/Edit/5
