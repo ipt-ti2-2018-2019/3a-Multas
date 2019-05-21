@@ -23,16 +23,17 @@ namespace Multas.Controllers {
       // GET: Agentes/Details/5
       public ActionResult Details(int? id) {
          if(id == null) {
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            return RedirectToAction("Index");
          }
-         Agentes agentes = db.Agentes.Find(id);
-         if(agentes == null) {
-            return HttpNotFound();
+         Agentes agente = db.Agentes.Find(id);
+
+         if(agente == null) {
+            return RedirectToAction("Index");
          }
 
          Session["Metodo"] = "";
 
-         return View(agentes);
+         return View(agente);
       }
 
       // GET: Agentes/Create
