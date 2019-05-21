@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -58,13 +59,47 @@ namespace Multas.Controllers {
 
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public ActionResult Create([Bind(Include = "Nome,Esquadra")] Agentes agente, HttpPostedFileBase fotografia) {
+      public ActionResult Create([Bind(Include = "Nome,Esquadra")] Agentes agente,
+                                  HttpPostedFileBase fotografia) {
+
+         // vars auxiliares
+         string caminho = "";
+         bool ficheiroValido = false;
+
 
          /// 1º será que foi enviado um ficheiro?
-         /// 2º será que o ficheiro, se foi fornecido, é do tipo correto?
-         /// 3º qual o nome a atribuir ao ficheiro?
-         /// 4º como o associar ao novo Agente?
-         /// 5º como o guardar no disco rígido? e onde?
+         if(fotografia == null) {
+            // atribuir uma foto por defeito ao Agente
+            agente.Fotografia = "no_image_user_profile.png";
+         }
+         else {
+            /// 2º será que o ficheiro, se foi fornecido, é do tipo correto?
+            string mimeType = fotografia.ContentType;
+            if(mimeType == "image/jpeg" || mimeType == "image/png") {
+               // o ficheiro é do tipo correto
+
+               /// 3º qual o nome a atribuir ao ficheiro?
+               Guid g;
+               g = Guid.NewGuid(); // obtem os dados para o nome do ficheiro
+               // e qual a extensão do ficheiro?
+               string extensao = Path.GetExtension(fotografia.FileName).ToLower();
+               // montar o novo nome
+               string nomeFicheiro = g.ToString() + extensao;
+               // onde guardar o ficheiro?
+               caminho = Path.Combine(Server.MapPath("~/imagens/"), nomeFicheiro);
+
+               /// 4º como o associar ao novo Agente?
+               agente.Fotografia = nomeFicheiro;
+
+               // marcar o ficheiro como válido
+               ficheiroValido = true;
+            }
+            else {
+               // o ficheiro fornecido não é válido
+               // atribuo a imagem por defeito ao Agente
+               agente.Fotografia = "no_image_user_profile.png";
+            }
+         }
 
          /// confronta os dados q vêm da view com a forma que os dados devem ter.
          /// ie, valida os dados com o Modelo
@@ -72,6 +107,10 @@ namespace Multas.Controllers {
             try {
                db.Agentes.Add(agente);
                db.SaveChanges();
+
+               /// 5º como o guardar no disco rígido? e onde?
+               if(ficheiroValido) fotografia.SaveAs(caminho);
+
                return RedirectToAction("Index");
             }
             catch(Exception) {

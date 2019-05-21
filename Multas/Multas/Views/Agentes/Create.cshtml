@@ -10,9 +10,9 @@
 @using(Html.BeginForm("Create",
                       "Agentes",
                       FormMethod.Post,
-                      new { enctype="multipart/form-data"})) {
+                      new { enctype = "multipart/form-data" })) {
 
-                                                               
+
    @Html.AntiForgeryToken()
 
    <div class="form-horizontal">
@@ -40,7 +40,7 @@
          @Html.LabelFor(model => model.Fotografia, htmlAttributes: new { @class = "control-label col-md-2" })
          <div class="col-md-10">
             @*Adicionar um 'file-upload'*@
-            <input type="file" name="fotografia" accept=".jpg"/>
+            <input type="file" name="fotografia" accept=".jpg" />
 
             @*@Html.EditorFor(model => model.Fotografia, new { htmlAttributes = new { @class = "form-control" } })*@
 
