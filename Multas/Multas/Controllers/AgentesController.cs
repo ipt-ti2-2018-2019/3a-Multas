@@ -10,10 +10,19 @@ using System.Web.Mvc;
 using Multas.Models;
 
 namespace Multas.Controllers {
+
+   [Authorize] // obriga a que os utilizadores estejam AUTENTICADOS
    public class AgentesController : Controller {
+
       private MultasDB db = new MultasDB();
 
       // GET: Agentes
+      [Authorize(Roles = "RecursosHumanos,Agentes")] // além de AUTENTICADO,
+      // só os utilizadores do tipo RecursosHumanos ou Agentes têm acesso
+      // só precisa de pertencer a uma delas...
+      //*****************************************************
+      ////[Authorize(Roles = "RecursosHumanos")]  // exemplo de uma situação em que 
+      ////[Authorize(Roles = "Agentes")]          // os utilizadores TÊM AS DUAS Roles
       public ActionResult Index() {
 
          Session["Metodo"] = "";
@@ -22,7 +31,7 @@ namespace Multas.Controllers {
       }
 
       // GET: Agentes/Details/5
-      public ActionResult Details(int? id) {
+         public ActionResult Details(int? id) {
          if(id == null) {
             return RedirectToAction("Index");
          }
@@ -42,6 +51,7 @@ namespace Multas.Controllers {
       /// mostra a view para carregar os dados de um novo Agente
       /// </summary>
       /// <returns></returns>
+      [Authorize(Roles = "RecursosHumanos")]
       public ActionResult Create() {
          return View();
       }
@@ -56,7 +66,7 @@ namespace Multas.Controllers {
       /// <param name="agente">dados do novo Agente</param>
       /// <param name="fotografia">ficheiro com a foto do novo Agente</param>
       /// <returns></returns>
-
+      [Authorize(Roles = "RecursosHumanos")]
       [HttpPost]
       [ValidateAntiForgeryToken]
       public ActionResult Create([Bind(Include = "Nome,Esquadra")] Agentes agente,
