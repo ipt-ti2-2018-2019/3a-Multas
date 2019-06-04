@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 using Multas.Models;
 
 namespace Multas.Controllers {
@@ -27,11 +28,30 @@ namespace Multas.Controllers {
 
          Session["Metodo"] = "";
 
-         return View(db.Agentes.ToList());
+         // SELECT * FROM Agentes ORDER BY Nome
+         var lista = db.Agentes
+                       .OrderBy(a => a.Nome)
+                       .ToList();
+
+         // filtrar os dados se a pessoa
+         // NÃO pertence ao rolt 'RecursoHumanos' 
+         if(!User.IsInRole("RecursosHumanos")) {
+            // mostrar apenas os dados da pessoa
+            string userID = User.Identity.GetUserId();
+            lista = lista.Where(a => a.UserNameID == userID).ToList();
+         }
+
+         return View(lista);
       }
 
+
+
+
+
+
+
       // GET: Agentes/Details/5
-         public ActionResult Details(int? id) {
+      public ActionResult Details(int? id) {
          if(id == null) {
             return RedirectToAction("Index");
          }

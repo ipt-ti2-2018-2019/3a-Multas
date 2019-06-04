@@ -5,11 +5,12 @@ using System.Linq;
 using System.Web;
 
 namespace Multas.Models {
+
    public class Agentes {
 
-   public Agentes(){
+      public Agentes() {
          ListaDeMultas = new HashSet<Multas>();
-   }
+      }
 
 
       [Key] // identifica este atributo como Primary Key
@@ -31,12 +32,17 @@ namespace Multas.Models {
       public string Fotografia { get; set; }
 
       // *************************************
-
       /// <summary>
       ///  lista das multas associadas ao Agente
       /// </summary>
       public virtual ICollection<Multas> ListaDeMultas { get; set; }
       // este termo 'virtual' vai ativar a funcionalidade de 'lazy loading'
+
+      // *************************************
+      // criar uma 'chave forasteira' para ligar um Agente
+      // ao respetivo UserName
+    //  [Required]
+      public string UserNameID { get; set; }
 
    }
 }
