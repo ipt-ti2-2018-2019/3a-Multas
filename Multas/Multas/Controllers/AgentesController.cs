@@ -34,7 +34,7 @@ namespace Multas.Controllers {
                        .ToList();
 
          // filtrar os dados se a pessoa
-         // NÃO pertence ao rolt 'RecursoHumanos' 
+         // NÃO pertence ao role 'RecursoHumanos' 
          if(!User.IsInRole("RecursosHumanos")) {
             // mostrar apenas os dados da pessoa
             string userID = User.Identity.GetUserId();
@@ -52,19 +52,41 @@ namespace Multas.Controllers {
 
       // GET: Agentes/Details/5
       public ActionResult Details(int? id) {
+
+         Session["Metodo"] = "";
+
          if(id == null) {
             return RedirectToAction("Index");
          }
+
+         /// quem pode aceder aos dados:
+         ///    - quem pertencer à role RecursosHumanos ou à role GestorMultas
+         ///        - neste caso em concreto, acede aos dados de qq agente
+         ///    - é o Agente, q só acede aos seus dados
+
          Agentes agente = db.Agentes.Find(id);
 
          if(agente == null) {
             return RedirectToAction("Index");
          }
 
-         Session["Metodo"] = "";
-
-         return View(agente);
+         // se cheguei aqui, o Agente foi encontrado na BD
+         // será que tenho autorização para aceder aos seus dados?
+         if(User.IsInRole("RecursosHumanos") ||
+            User.IsInRole("GestorMultas") ||
+            agente.UserNameID == User.Identity.GetUserId()) {
+            // se isto se verifica , posso ver os dados do Agente
+            return View(agente);
+         }
+         else{
+            // não tenho autorização
+            return RedirectToAction("Index");
+         }
       }
+
+
+
+
 
       // GET: Agentes/Create
       /// <summary>
